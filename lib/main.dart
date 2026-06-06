@@ -594,16 +594,43 @@ class _RagSearchScreenState extends State<RagSearchScreen> {
                     Text(copy.coreModeInstructions, style: Theme.of(context).textTheme.bodySmall),
                   ],
                 );
-                final Widget segment = SegmentedButton<CoreMode>(
-                  segments: <ButtonSegment<CoreMode>>[
-                    ButtonSegment<CoreMode>(value: CoreMode.public, label: Text(CoreMode.public.label(widget.language))),
-                    ButtonSegment<CoreMode>(value: CoreMode.private, label: Text(CoreMode.private.label(widget.language))),
-                  ],
-                  selected: <CoreMode>{_selectedCore},
-                  onSelectionChanged: (Set<CoreMode> values) {
-                    if (values.isNotEmpty) {
-                      setState(() => _selectedCore = values.first);
+                final Widget segment = LayoutBuilder(
+                  builder: (BuildContext ctx, BoxConstraints c) {
+                    if (c.maxWidth < 420) {
+                      return DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: appTokens(ctx).surface.withValues(alpha: .92),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: DropdownButton<CoreMode>(
+                              value: _selectedCore,
+                              items: <DropdownMenuItem<CoreMode>>[
+                                DropdownMenuItem(value: CoreMode.public, child: Text(CoreMode.public.label(widget.language))),
+                                DropdownMenuItem(value: CoreMode.private, child: Text(CoreMode.private.label(widget.language))),
+                              ],
+                              onChanged: (CoreMode? v) {
+                                if (v != null) setState(() => _selectedCore = v);
+                              },
+                            ),
+                          ),
+                        ),
+                      );
                     }
+                    return SegmentedButton<CoreMode>(
+                      segments: <ButtonSegment<CoreMode>>[
+                        ButtonSegment<CoreMode>(value: CoreMode.public, label: Text(CoreMode.public.label(widget.language))),
+                        ButtonSegment<CoreMode>(value: CoreMode.private, label: Text(CoreMode.private.label(widget.language))),
+                      ],
+                      selected: <CoreMode>{_selectedCore},
+                      onSelectionChanged: (Set<CoreMode> values) {
+                        if (values.isNotEmpty) {
+                          setState(() => _selectedCore = values.first);
+                        }
+                      },
+                    );
                   },
                 );
                 if (compact) {
@@ -662,7 +689,31 @@ class _RagSearchScreenState extends State<RagSearchScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
                           for (int i = 0; i < tools.length; i += 1) ...<Widget>[
-                            tools[i],
+                            ExpansionTile(
+                              leading: Icon(i == 0 ? Icons.email_outlined : i == 1 ? Icons.message_outlined : Icons.calendar_today_outlined, color: AppColors.primary),
+                              title: Text(i == 0 ? copy.communicationAgent : i == 1 ? copy.whatsAppAgent : copy.calendarAgent, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900)),
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      for (final String item in i == 0 ? <String>[copy.emailAgent, copy.sendMail, copy.readMail, copy.summarizeMail] : i == 1 ? <String>[copy.sendWhatsApp, copy.scheduleWhatsApp] : <String>[copy.createMeeting, copy.updateMeeting, copy.cancelMeeting])
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 8),
+                                          child: Row(
+                                            children: <Widget>[
+                                              const Icon(Icons.check_circle_outline, size: 18, color: AppColors.success),
+                                              const SizedBox(width: 10),
+                                              Flexible(child: Text(item, style: Theme.of(context).textTheme.bodyMedium)),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                             if (i != tools.length - 1) const SizedBox(height: 14),
                           ],
                         ],
