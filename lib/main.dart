@@ -124,7 +124,7 @@ class _DemoShellState extends State<DemoShell> {
                       ),
                     );
                   },
-                  child: KeyedSubtree(key: ValueKey<int>(_tab), child: pages[_tab]),
+                  child: KeyedSubtree(key: ValueKey<int>(_tab), child: SafeArea(child: pages[_tab])),
                 ),
               ),
             ],
@@ -801,11 +801,9 @@ class _ChatPaneState extends State<ChatPane> {
     final AppThemeTokens tokens = appTokens(context);
     return PremiumCard(
       hoverable: false,
-      child: SizedBox(
-        height: 640,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
             Row(
               children: <Widget>[
                 DecoratedBox(
