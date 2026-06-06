@@ -596,7 +596,7 @@ class _RagSearchScreenState extends State<RagSearchScreen> {
                 );
                 final Widget segment = LayoutBuilder(
                   builder: (BuildContext ctx, BoxConstraints c) {
-                    if (c.maxWidth < 420) {
+                    if (c.maxWidth < 520) {
                       return DecoratedBox(
                         decoration: BoxDecoration(
                           color: appTokens(ctx).surface.withValues(alpha: .92),
@@ -689,30 +689,48 @@ class _RagSearchScreenState extends State<RagSearchScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
                           for (int i = 0; i < tools.length; i += 1) ...<Widget>[
-                            ExpansionTile(
-                              leading: Icon(i == 0 ? Icons.email_outlined : i == 1 ? Icons.message_outlined : Icons.calendar_today_outlined, color: AppColors.primary),
-                              title: Text(i == 0 ? copy.communicationAgent : i == 1 ? copy.whatsAppAgent : copy.calendarAgent, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900)),
-                              children: <Widget>[
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      for (final String item in i == 0 ? <String>[copy.emailAgent, copy.sendMail, copy.readMail, copy.summarizeMail] : i == 1 ? <String>[copy.sendWhatsApp, copy.scheduleWhatsApp] : <String>[copy.createMeeting, copy.updateMeeting, copy.cancelMeeting])
-                                        Padding(
-                                          padding: const EdgeInsets.only(bottom: 8),
-                                          child: Row(
-                                            children: <Widget>[
-                                              const Icon(Icons.check_circle_outline, size: 18, color: AppColors.success),
-                                              const SizedBox(width: 10),
-                                              Flexible(child: Text(item, style: Theme.of(context).textTheme.bodyMedium)),
-                                            ],
+                            DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: appTokens(context).surface.withValues(alpha: .98),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(color: appTokens(context).border),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Row(
+                                      children: <Widget>[
+                                        Icon(i == 0 ? Icons.email_outlined : i == 1 ? Icons.message_outlined : Icons.calendar_today_outlined, color: AppColors.primary, size: 18),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            i == 0 ? copy.communicationAgent : i == 1 ? copy.whatsAppAgent : copy.calendarAgent,
+                                            style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900),
                                           ),
                                         ),
-                                    ],
-                                  ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    for (final String item in i == 0 ? <String>[copy.emailAgent, copy.sendMail, copy.readMail, copy.summarizeMail] : i == 1 ? <String>[copy.sendWhatsApp, copy.scheduleWhatsApp] : <String>[copy.createMeeting, copy.updateMeeting, copy.cancelMeeting])
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 8),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            const Padding(
+                                              padding: EdgeInsets.only(top: 2),
+                                              child: Icon(Icons.check_circle_outline, size: 18, color: AppColors.success),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(child: Text(item, style: Theme.of(context).textTheme.bodyMedium)),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                             if (i != tools.length - 1) const SizedBox(height: 14),
                           ],
