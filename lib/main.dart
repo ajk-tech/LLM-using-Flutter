@@ -86,7 +86,7 @@ class _DemoShellState extends State<DemoShell> {
         final bool desktop = constraints.maxWidth >= 1040;
         return Scaffold(
           appBar: AppBar(
-            toolbarHeight: desktop ? 96 : 132,
+            toolbarHeight: desktop ? 96 : 88,
             automaticallyImplyLeading: false,
             titleSpacing: 0,
             title: ClassificationHeader(
@@ -656,7 +656,6 @@ class _AgentToolsColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppThemeTokens tokens = appTokens(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -898,8 +897,7 @@ class _ChatPaneState extends State<ChatPane> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
 
