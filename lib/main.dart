@@ -410,7 +410,27 @@ class ClassificationHeader extends StatelessWidget {
                 children: <Widget>[
                   titleBlock,
                   const SizedBox(height: 12),
-                  controls,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      tooltip: 'Options',
+                      icon: const Icon(Icons.more_vert),
+                      onPressed: () {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                          ),
+                          builder: (BuildContext ctx) {
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
+                              child: SingleChildScrollView(child: controls),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
                 ],
               );
             }
@@ -563,20 +583,18 @@ class _RagSearchScreenState extends State<RagSearchScreen> {
           PremiumCard(
             hoverable: false,
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(copy.coreModeSelection, style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 6),
-                      Text(copy.coreModeInstructions, style: Theme.of(context).textTheme.bodySmall),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 14),
-                SegmentedButton<CoreMode>(
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                final bool compact = constraints.maxWidth < 640;
+                final Widget body = Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(copy.coreModeSelection, style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 6),
+                    Text(copy.coreModeInstructions, style: Theme.of(context).textTheme.bodySmall),
+                  ],
+                );
+                final Widget segment = SegmentedButton<CoreMode>(
                   segments: <ButtonSegment<CoreMode>>[
                     ButtonSegment<CoreMode>(value: CoreMode.public, label: Text(CoreMode.public.label(widget.language))),
                     ButtonSegment<CoreMode>(value: CoreMode.private, label: Text(CoreMode.private.label(widget.language))),
@@ -587,8 +605,25 @@ class _RagSearchScreenState extends State<RagSearchScreen> {
                       setState(() => _selectedCore = values.first);
                     }
                   },
-                ),
-              ],
+                );
+                if (compact) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      body,
+                      const SizedBox(height: 14),
+                      segment,
+                    ],
+                  );
+                }
+                return Row(
+                  children: <Widget>[
+                    Expanded(child: body),
+                    const SizedBox(width: 14),
+                    segment,
+                  ],
+                );
+              },
             ),
           ),
           const SizedBox(height: 18),
@@ -602,33 +637,47 @@ class _RagSearchScreenState extends State<RagSearchScreen> {
                 const SizedBox(height: 6),
                 Text(copy.agentToolsSubtitle, style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 18),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(
-                      child: _AgentToolsColumn(
+                LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                    final bool compact = constraints.maxWidth < 900;
+                    final List<Widget> tools = <Widget>[
+                      _AgentToolsColumn(
                         title: copy.communicationAgent,
                         items: <String>[copy.emailAgent, copy.sendMail, copy.readMail, copy.summarizeMail],
                         icon: Icons.email_outlined,
                       ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: _AgentToolsColumn(
+                      _AgentToolsColumn(
                         title: copy.whatsAppAgent,
                         items: <String>[copy.sendWhatsApp, copy.scheduleWhatsApp],
                         icon: Icons.message_outlined,
                       ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: _AgentToolsColumn(
+                      _AgentToolsColumn(
                         title: copy.calendarAgent,
                         items: <String>[copy.createMeeting, copy.updateMeeting, copy.cancelMeeting],
                         icon: Icons.calendar_today_outlined,
                       ),
-                    ),
-                  ],
+                    ];
+                    if (compact) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          for (int i = 0; i < tools.length; i += 1) ...<Widget>[
+                            tools[i],
+                            if (i != tools.length - 1) const SizedBox(height: 14),
+                          ],
+                        ],
+                      );
+                    }
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        for (int i = 0; i < tools.length; i += 1) ...<Widget>[
+                          Expanded(child: tools[i]),
+                          if (i != tools.length - 1) const SizedBox(width: 14),
+                        ],
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -647,7 +696,6 @@ class _AgentToolsColumn extends StatelessWidget {
     required this.title,
     required this.items,
     required this.icon,
-    super.key,
   });
 
   final String title;
@@ -1182,26 +1230,41 @@ class DraftEditor extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  initialValue: template,
-                  decoration: InputDecoration(labelText: copy.template),
-                  items: const <DropdownMenuItem<String>>[
-                    DropdownMenuItem<String>(value: 'Parliament Answer Draft', child: Text('Parliament Answer Draft')),
-                    DropdownMenuItem<String>(value: 'Office Memorandum', child: Text('Office Memorandum')),
+          LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              final bool compact = constraints.maxWidth < 520;
+              final Widget selector = DropdownButtonFormField<String>(
+                initialValue: template,
+                decoration: InputDecoration(labelText: copy.template),
+                items: const <DropdownMenuItem<String>>[
+                  DropdownMenuItem<String>(value: 'Parliament Answer Draft', child: Text('Parliament Answer Draft')),
+                  DropdownMenuItem<String>(value: 'Office Memorandum', child: Text('Office Memorandum')),
+                ],
+                onChanged: (String? value) {
+                  if (value != null) {
+                    onTemplateChanged(value);
+                  }
+                },
+              );
+              final Widget badge = StatusBadge(label: language == AppLanguage.hindi ? 'द्विभाषी' : 'Bilingual', color: AppColors.accent, icon: Icons.translate);
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    selector,
+                    const SizedBox(height: 12),
+                    badge,
                   ],
-                  onChanged: (String? value) {
-                    if (value != null) {
-                      onTemplateChanged(value);
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              StatusBadge(label: language == AppLanguage.hindi ? 'द्विभाषी' : 'Bilingual', color: AppColors.accent, icon: Icons.translate),
-            ],
+                );
+              }
+              return Row(
+                children: <Widget>[
+                  Expanded(child: selector),
+                  const SizedBox(width: 12),
+                  badge,
+                ],
+              );
+            },
           ),
           const SizedBox(height: 18),
           DecoratedBox(
